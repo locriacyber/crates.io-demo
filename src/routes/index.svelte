@@ -52,7 +52,7 @@
 			Getting Started
 		</a>
 	</nav>
-	
+
 	<p>
 		Instantly publish your crates and install them. Use the API to interact and find out more
 		information about available crates. Become a contributor and enhance the site with your work.
@@ -64,42 +64,44 @@
 
 <main>
 	<div id="crates">
-		<CrateList title="New Crates" crates={data.new_crates} />
-		<CrateList title="Most Downloaded" crates={data.most_downloaded} />
-		<CrateList title="Just Updated" crates={data.just_updated} />
-		<CrateList title="Most Recent Downloads" crates={data.most_recently_downloaded} />
+		<CrateList crates={data.new_crates}>
+			<h2>New Crates</h2>
+		</CrateList>
+		<CrateList crates={data.most_downloaded}>
+			<h2>Most Downloaded</h2>
+		</CrateList>
+		<CrateList crates={data.just_updated}>
+			<h2>Just Updated</h2>
+		</CrateList>
+		<CrateList crates={data.most_recently_downloaded}>
+			<h2>Most Recent Downloads</h2>
+		</CrateList>
 
-		<section>
+		<CrateList crates={data.popular_keywords}>
 			<h2>Popular Keywords</h2>
-			<!-- <CrateList title="Popular Keywords <a href={getRoute('keywords')}>(see all)</a>" crates={data.popular_keywords}/> -->
-			<ul>
-				{#each data.popular_keywords as keyword}
-					<li>
-						<FrontPageListItem
-							link={getURI('keyword', keyword)}
-							title={keyword.id}
-							subtitle="{formatNum(keyword.crates_cnt)} crates"
-						/>
-					</li>
-				{/each}
-			</ul>
-		</section>
+			<a href={getRoute('keywords')}>(see all)</a>
 
-		<section>
+			<svelte:fragment slot="item" let:item={keyword}>
+				<FrontPageListItem
+					link={getURI('keyword', keyword)}
+					title={keyword.id}
+					subtitle="{formatNum(keyword.crates_cnt)} crates"
+				/>
+			</svelte:fragment>
+		</CrateList>
+
+		<CrateList crates={data.popular_categories}>
 			<h2>Popular Categories</h2>
-			<!-- <CrateList title="Popular Categories <a href={getRoute('categories')}>(see all)</a>" crates={data.popular_categories}/> -->
-			<ul>
-				{#each data.popular_categories as category}
-					<li>
-						<FrontPageListItem
-							link={getURI('category', category.slug)}
-							title={category.category}
-							subtitle="{formatNum(category.crates_cnt)} crates"
-						/>
-					</li>
-				{/each}
-			</ul>
-		</section>
+			<a href={getRoute('categories')}>(see all)</a>
+
+			<svelte:fragment slot="item" let:item={category}>
+				<FrontPageListItem
+					link={getURI('category', category.slug)}
+					title={category.category}
+					subtitle="{formatNum(category.crates_cnt)} crates"
+				/>
+			</svelte:fragment>
+		</CrateList>
 	</div>
 </main>
 
