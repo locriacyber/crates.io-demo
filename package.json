@@ -1,6 +1,6 @@
 {
   "name": "crates.io-svelte-demo",
-  "version": "0.0.1",
+  "private": true,
   "scripts": {
     "dev": "svelte-kit dev",
     "build": "svelte-kit build",
@@ -26,7 +26,8 @@
     "svelte-check": "^2.2.6",
     "svelte-preprocess": "^4.9.4",
     "tslib": "^2.3.1",
-    "typescript": "^4.4.3"
+    "typescript": "^4.4.3",
+    "sass": "^1.45.2"
   },
   "type": "module",
   "dependencies": {

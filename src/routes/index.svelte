@@ -1,59 +1,112 @@
 <script context="module" lang="ts">
 	export const prerender = true;
+	export async function load({ fetch }) {
+		const url = 'https://crates.io/api/v1/summary';
+		const res = await fetch(url);
+		if (res.ok) {
+			const data = await res.json();
+			return {
+				props: {
+					data
+				}
+			};
+		} else {
+			return {
+				status: res.status,
+				error: new Error(`Could not load ${url}`)
+			};
+		}
+	}
 </script>
 
 <script lang="ts">
-	import Counter from '$lib/Counter.svelte';
+	import Icon from '$lib/Icon.svelte';
+	import CrateList from '$lib/CrateList.svelte';
+	import FrontPageListItem from '$lib/FrontPageListItem.svelte';
+	import StatsValue from '$lib/StatsValue.svelte';
+	import { onMount } from 'svelte';
+	import { formatNum, getURI, getRoute } from '$lib/utils';
+	export let data;
+
+	$: num_downloads = data ? formatNum(data.num_downloads) : '---,---,---';
+	$: num_crates = data ? formatNum(data.num_crates) : '---,---,---';
+
+	onMount(() => {
+		console.log(data);
+	});
 </script>
 
 <svelte:head>
-	<title>Home</title>
+	<title>crates.io: Rust Package Registry</title>
 </svelte:head>
 
-<section>
-	<h1>
-		<div class="welcome">
-			<picture>
-				<source srcset="svelte-welcome.webp" type="image/webp" />
-				<img src="svelte-welcome.png" alt="Welcome" />
-			</picture>
-		</div>
+<header>
+	<nav>
+		<a href="https://doc.rust-lang.org/cargo/getting-started/installation.html">
+			<Icon name="download-arrow" />
+			Install Cargo
+		</a>
 
-		to your new<br />SvelteKit app
-	</h1>
+		<a href="https://doc.rust-lang.org/cargo/guide/">
+			<Icon name="flag" />
+			Getting Started
+		</a>
+	</nav>
+	
+	<p>
+		Instantly publish your crates and install them. Use the API to interact and find out more
+		information about available crates. Become a contributor and enhance the site with your work.
+	</p>
 
-	<h2>
-		try editing <strong>src/routes/index.svelte</strong>
-	</h2>
+	<StatsValue label="Downloads" value={num_downloads} icon="file-archive" />
+	<StatsValue label="Crates in stock" value={num_crates} icon="box" />
+</header>
 
-	<Counter />
-</section>
+<main>
+	<div id="crates">
+		<CrateList title="New Crates" crates={data.new_crates} />
+		<CrateList title="Most Downloaded" crates={data.most_downloaded} />
+		<CrateList title="Just Updated" crates={data.just_updated} />
+		<CrateList title="Most Recent Downloads" crates={data.most_recently_downloaded} />
 
-<style>
-	section {
+		<section>
+			<h2>Popular Keywords</h2>
+			<!-- <CrateList title="Popular Keywords <a href={getRoute('keywords')}>(see all)</a>" crates={data.popular_keywords}/> -->
+			<ul>
+				{#each data.popular_keywords as keyword}
+					<li>
+						<FrontPageListItem
+							link={getURI('keyword', keyword)}
+							title={keyword.id}
+							subtitle="{formatNum(keyword.crates_cnt)} crates"
+						/>
+					</li>
+				{/each}
+			</ul>
+		</section>
+
+		<section>
+			<h2>Popular Categories</h2>
+			<!-- <CrateList title="Popular Categories <a href={getRoute('categories')}>(see all)</a>" crates={data.popular_categories}/> -->
+			<ul>
+				{#each data.popular_categories as category}
+					<li>
+						<FrontPageListItem
+							link={getURI('category', category.slug)}
+							title={category.category}
+							subtitle="{formatNum(category.crates_cnt)} crates"
+						/>
+					</li>
+				{/each}
+			</ul>
+		</section>
+	</div>
+</main>
+
+<style lang="scss">
+	#crates {
 		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		flex: 1;
-	}
-
-	h1 {
-		width: 100%;
-	}
-
-	.welcome {
-		position: relative;
-		width: 100%;
-		height: 0;
-		padding: 0 0 calc(100% * 495 / 2048) 0;
-	}
-
-	.welcome img {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		top: 0;
-		display: block;
+		flex-flow: row wrap;
+		justify-content: space-between;
 	}
 </style>
